@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "35003000000070077",
+      "name": "ProjectAppsail",
+      "domain": {
+        "id": "10102165915",
+        "name": "projectappsail-887745869.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "887745869",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}
