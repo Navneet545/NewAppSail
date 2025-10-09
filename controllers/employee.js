@@ -211,6 +211,12 @@ exports.updateEmployee = async (req, res, next) => {
     next(err);
   }
 };
+//@bulk same fields update into multiple ids
+// exports.bulkUpdate=async(req,res, next)=>{
+//    const dbApp = catalyst.initialize(req);
+//    const zcql = dbApp.zcql();
+
+// }
 
 // bulk partial update the employee
 exports.bulkPatchEmployee = async (req, res, next) => {

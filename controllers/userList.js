@@ -2,7 +2,8 @@ var catalyst = require('zcatalyst-sdk-node');
 const bcrypt = require('bcrypt');
 // const auth=require('../Service/auth');
 const auth=require('../Middleware/authMiddleware');
-const moment=require('moment');
+// const moment=require('moment');
+const moment = require('moment-timezone');
 // @register user
 exports.registerUser = async (req, res, next) => {
     try {
@@ -62,7 +63,10 @@ exports.loginUser = async (req, res, next) => {
         }
         // const token=auth.setUser(result[0].UserList);
         const token=auth.generateToken(result[0].UserList);
-        return  res.status(200).json({ message: "User login successfully!" ,token});
+        console.log("JWT token:",token);
+        const encryptToken=auth.encrypt(token);
+        console.log("ASH encrypted token:",encryptToken);
+        return  res.status(200).json({ message: "User login successfully!" ,encryptToken});
     // }
     // catch (err) {
     //    return res.status(500).json({ message: err });
@@ -81,7 +85,10 @@ exports.generateOTP=async(req,res,next)=>{
         const email=req.body.Email;
         const otp = Math.round(Math.random() * 100000);
         const dt=new Date();
-        const dte=moment(dt).format('YYYY-MM-DD hh:mm:ss');
+        dt.setMinutes(dt.getMinutes() + 5);
+        console.log(dt);
+        const dte=moment.tz(dt, 'Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+        // const dte=moment(dt).format('YYYY-MM-DD hh:mm:ss');
         console.log(dte);
         const query=`Insert into OTP (Email,OTP,Expiry_Time) values('${email}',${otp},'${dte}');`;
         const result=await zcql.executeZCQLQuery(query);
@@ -108,6 +115,7 @@ exports.verifyOTP=async(req,res,next)=>{
         const otp=Number(req.body.OTP);
         const query=`Select * from OTP where Email='${email}' order by Expiry_Time desc Limit 1;`;
         const result=await zcql.executeZCQLQuery(query);
+        console.log(result[0].OTP.OTP);
         console.log(new Date(result[0].OTP.Expiry_Time));
         console.log(new Date());
         if(Number(result[0].OTP.OTP) === otp && new Date(result[0].OTP.Expiry_Time) > new Date()){

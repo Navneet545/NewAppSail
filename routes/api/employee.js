@@ -6,7 +6,7 @@ var employeeController=require('../../controllers/employee');
 const verifyToken=require('../../Middleware/authMiddleware');
 
 // @GET Request
-router.get('/',verifyToken.verifyToken, employeeController.getAllEmployee);
+router.get('/',verifyToken.verifyToken, verifyToken.authorizeRoles('Admin','User'),employeeController.getAllEmployee);
 
 // @GET Request single employee id
 router.get('/:id',employeeController.getSingleEmployee);
