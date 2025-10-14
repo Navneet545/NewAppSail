@@ -6,7 +6,7 @@ var catalyst = require('zcatalyst-sdk-node');
 const crypto = require('crypto');
 
 function generateToken(user){
-    return jwt.sign(user,secret);
+    return jwt.sign(user,secret,{ expiresIn: '15m' });
 }
 
 const verifyToken = (req, res, next) => {
