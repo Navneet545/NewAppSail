@@ -73,32 +73,61 @@ exports.loginUser = async (req, res, next) => {
     // }
 };
 
-
+// @OTP create function
+const crypto = require("crypto");
+function createOTP(length = 6){
+  const digits = "0123456789";
+  let otp = "";
+  for (let i = 0; i < length; i++) {
+    const randomByte = crypto.randomBytes(1)[0];
+    otp += digits[randomByte % digits.length];
+  }
+  return otp;
+}
 // @reset password
-//@generate OTP
-exports.generateOTP=async(req,res,next)=>{
+//@generate OTP through record otp in db
+exports.generateOTPOLD=async(req,res,next)=>{
     //  try{
-        console.log(3);
-        // res.status(200).json({message:"3"});
+        
         var dbApp = catalyst.initialize(req);
         var zcql = dbApp.zcql();
         const email=req.body.Email;
-        const otp = Math.round(Math.random() * 100000);
+        // const otp = Math.round(Math.random() * 100000);
+        const otp=createOTP(length = 6);
         const dt=new Date();
         dt.setMinutes(dt.getMinutes() + 5);
-        console.log(dt);
         const dte=moment.tz(dt, 'Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
-        // const dte=moment(dt).format('YYYY-MM-DD hh:mm:ss');
-        console.log(dte);
-        const query=`Insert into OTP (Email,OTP,Expiry_Time) values('${email}',${otp},'${dte}');`;
-        const result=await zcql.executeZCQLQuery(query);
-        if(!result )
-        {
-            res.status(400).json({message:'Otp generation issue'});
+      
+         let query = `SELECT * FROM UserList WHERE email='${email}';`;
+        const userResult = await zcql.executeZCQLQuery(query);
+        if(userResult[0]){
+            const fetchQuery=`Select Email From OTP Where Email='${email}' order by Expiry_Time desc Limit 1;`;
+            const fetchResult=await zcql.executeZCQLQuery(fetchQuery);
+            if(fetchResult[0])
+            {
+                const query=`Update OTP Set OTP=${otp},Expiry_Time='${dte}';`;
+                const result=await zcql.executeZCQLQuery(query);
+                if(!result )
+                {
+                    res.status(400).json({message:'Otp generation issue'});
+                }
+                res.status(200).json({message:'OTP:',otp});
+            }
+            else{
+                const query=`Insert into OTP (Email,OTP,Expiry_Time) values('${email}',${otp},'${dte}');`;
+                const result=await zcql.executeZCQLQuery(query);
+                if(!result )
+                {
+                    res.status(400).json({message:'Otp generation issue'});
+                }
+                res.status(200).json({message:'OTP:',otp});
+            }
         }
-        res.status(200).json({message:'OTP:',otp});
-        //   console.log(otp);
-        // res.json({ "New OTP": otp });
+        else{
+            return res.status(400).json({message:"Not a valid User"});
+        }
+        
+        
     //  }
     //  catch(err)
     //  {
@@ -107,7 +136,7 @@ exports.generateOTP=async(req,res,next)=>{
 }
 
 // @verify OTP
-exports.verifyOTP=async(req,res,next)=>{
+exports.verifyOTPOLD=async(req,res,next)=>{
     try{
         var dbApp = catalyst.initialize(req);
         var zcql = dbApp.zcql();
@@ -130,7 +159,7 @@ exports.verifyOTP=async(req,res,next)=>{
 
 }
 //@Update password
-exports.updatePassword=async(req,res,next)=>{
+exports.updatePasswordOLD=async(req,res,next)=>{
         var dbApp = catalyst.initialize(req);
         var zcql = dbApp.zcql();
         const email=req.body.Email;
@@ -155,4 +184,39 @@ exports.updatePassword=async(req,res,next)=>{
 
             return res.status(400).json({message:'Wrong OTP'});
         // }
+}
+//@generate otp through cache
+exports.generateOTP=async(req,res,next)=>{
+    //  try{
+        
+        var dbApp = catalyst.initialize(req);
+        var zcql = dbApp.zcql();
+        const email=req.body.Email;
+        // const otp = Math.round(Math.random() * 100000);
+        const otp=createOTP(length = 6);
+        const dt=new Date();
+        dt.setMinutes(dt.getMinutes() + 5);
+        const dte=moment.tz(dt, 'Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+      
+         let query = `SELECT * FROM UserList WHERE email='${email}';`;
+        const userResult = await zcql.executeZCQLQuery(query);
+        if(userResult[0]){
+            let key=email;
+            let cache = dbApp.cache();
+            let segment = cache.segment("35003000000109261");
+            const value = otp + "," + dte;
+            let segmentInsert = await segment.update(key, value, 1);
+            console.log(segmentInsert);
+            return res.status(201).json({ Message: "Success" });
+        }
+        else{
+            return res.status(400).json({message:"Not a valid User"});
+        }
+        
+        
+    //  }
+    //  catch(err)
+    //  {
+    //     next();
+    //  }
 }
