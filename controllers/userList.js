@@ -63,10 +63,17 @@ exports.loginUser = async (req, res, next) => {
         }
         // const token=auth.setUser(result[0].UserList);
         const token=auth.generateToken(result[0].UserList);
-        console.log("JWT token:",token);
-        const encryptToken=auth.encrypt(token);
-        console.log("ASH encrypted token:",encryptToken);
-        return  res.status(200).json({ message: "User login successfully!" ,encryptToken});
+        // Store token in cookie (httpOnly for security)
+        res.cookie('token', token, {
+            httpOnly: true,      // Prevents JavaScript access to cookie
+            secure: false,       // Set to true in production (with HTTPS)
+            sameSite: 'strict',  // CSRF protection
+            maxAge: 3600000      // 1 hour
+        });
+        // console.log("JWT token:",token);
+        // const encryptToken=auth.encrypt(token);
+        // console.log("ASH encrypted token:",encryptToken);
+        return  res.status(200).json({ message: "User login successfully!",token});
     // }
     // catch (err) {
     //    return res.status(500).json({ message: err });

@@ -4,7 +4,7 @@
   "description": "testing the express rest api",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
