@@ -19,8 +19,8 @@ const verifyToken = (req, res, next) => {
         }
     }
     try {
-        const token2=decrypt(token);
-        const decode = jwt.verify(token2, secret,(err,data)=>{
+        // const token2=decrypt(token);
+        const decode = jwt.verify(token, secret,(err,data)=>{
             if(!err)
             {
                 console.log("verify:",data);

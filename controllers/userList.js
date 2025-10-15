@@ -174,8 +174,8 @@ exports.updatePasswordOLD=async(req,res,next)=>{
         const password=req.body.Password;
         const query=`Select * from OTP where Email='${email}' order by Expiry_Time desc Limit 1;`;
         const result=await zcql.executeZCQLQuery(query);
-        console.log(new Date(result[0].OTP.Expiry_Time));
-        console.log(new Date());
+        // console.log(new Date(result[0].OTP.Expiry_Time));
+        // console.log(new Date());
         const expiry_date=new Date(result[0].OTP.Expiry_Time);
         if(Number(result[0].OTP.OTP) === otp && expiry_date.setTime(expiry_date.getTime() + 2 * 60 * 1000) > new Date()){
             const bcryptPassword=await bcrypt.hash(password, 10);
