@@ -64,7 +64,7 @@ exports.loginUser = async (req, res, next) => {
         // const token=auth.setUser(result[0].UserList);
         const token=auth.generateToken(result[0].UserList);
         // Store token in cookie (httpOnly for security)
-        res.cookie('token', token, {
+        res.cookie('token1', token, {
             httpOnly: true,      // Prevents JavaScript access to cookie
             secure: false,       // Set to true in production (with HTTPS)
             sameSite: 'strict',  // CSRF protection
@@ -191,6 +191,12 @@ exports.updatePasswordOLD=async(req,res,next)=>{
 
             return res.status(400).json({message:'Wrong OTP'});
         // }
+}
+
+//@logout 
+exports.logout=async(req,res,next)=>{
+    res.clearCookie('token1'); 
+    res.status(200).json({ message: 'Logged out and cookies cleared' });
 }
 //@generate otp through cache
 exports.generateOTP=async(req,res,next)=>{
