@@ -4,6 +4,7 @@ const { console } = require('inspector');
 const employeeRoutes=require('./routes/api/employee');
 const userRoutes=require('./routes/user');
 const userListRoutes=require('./routes/api/userList');
+const theme=require("./routes/api/theme");
 const noSql=require('./routes/noSql');
 const auth=require('./controllers/auth');
 const cookieParser = require('cookie-parser');
@@ -25,8 +26,11 @@ app.use('/noSql',noSql);
 
 app.post('/api/auth',auth.postauthrequest);
 // creating userList routes
-console.log(1);
+// console.log(1);
 app.use('/api/userList',userListRoutes);
+// theme routes
+app.use('/api/theme',theme);
+
 app.use(errorHandler);
 
 
