@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const auth=require('../Middleware/authMiddleware');
 // const moment=require('moment');
 const moment = require('moment-timezone');
+const transporter=require("../Service/mailConfig");
 // @register user
 exports.registerUser = async (req, res, next) => {
     try {
@@ -118,6 +119,7 @@ exports.generateOTPOLD=async(req,res,next)=>{
                 {
                     res.status(400).json({message:'Otp generation issue'});
                 }
+                
                 res.status(200).json({message:'OTP:',otp});
             }
             else{
@@ -220,7 +222,20 @@ exports.generateOTP=async(req,res,next)=>{
             const value = otp + "," + dte;
             let segmentInsert = await segment.update(key, value, 1);
             console.log(segmentInsert);
-            return res.status(201).json({ Message: "Success" });
+            const mailOptions = {
+                    from: "vtruact.testing@gmail.com",
+                    to: `${email}`,
+                    subject: `Hello ${email}, Here is your otp mail`,
+                    text: `This is a test email sent using Node.js and Nodemailer.${otp}`
+                    // html: "<h1>Hello</h1><p>This is a test email!</p>" // optional HTML body
+                };
+                transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log("Error sending email:", error);
+                }
+                console.log("OTP sent successfully:", info.response);
+                });
+            return res.status(201).json({ Message: "OTP sent successfully" });
         }
         else{
             return res.status(400).json({message:"Not a valid User"});

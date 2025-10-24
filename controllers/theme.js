@@ -7,7 +7,7 @@ exports.getlastRecord=async(req,res, next)=>{
 
     let query=`Select * from Theme Order by CREATEDTIME Desc Limit 1;`;
     let result=await zcql.executeZCQLQuery(query);
-    if(result){
+    if(result[0]){
         return res.status(200).json({message:"Request successfull",result});
     }
     else{

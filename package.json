@@ -16,6 +16,7 @@
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
+    "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
     "zcatalyst-sdk-node": "^3.0.3"
   }
