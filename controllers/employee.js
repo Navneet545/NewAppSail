@@ -302,3 +302,82 @@ exports.deleteSingleEmployee = async (req, res, next) => {
 // exports.UploadImage=async(req,res,next)=>{
 
 // };
+// Send mail properties
+//Create an email instance 
+// let email = app.email();
+exports.SendMail = async (req, res, next) => {
+  try {
+    const app = catalyst.initialize(req);
+    const email = app.email();
+
+    const htmlContent = `
+       <html>
+          <body style="font-family: Arial, sans-serif; color: #333;">
+            <p>Hi,</p>
+            <p>This is just a testing mail, so please ignore it.</p>
+            <p>Thank You,<br><b>Navneet</b></p>
+          </body>
+        </html>
+    `;
+
+    const config = {
+      from_email: 'navneet@techpit.in',
+      to_email: ['navneet@techpit.in'],
+      cc:['krit@techpit.in'],
+      subject: 'Test HTML Email',
+      html_mode: true,
+      content: htmlContent,
+    };
+
+    const mailResponse = await email.sendMail(config);
+    res.status(200).json({ message: 'Email sent', data: mailResponse });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+
+// exports.imageUpload=async(req,res,next)=>{
+//   const dbApp=catalyst.initialize(req);
+//   const stratus = dbApp.stratus();
+//   const headBucketResponse = await stratus.headBucket('mybucketnavneet'); // check the bucket is available in stratus
+//   if(!headBucketResponse){
+//     const bucket = stratus.bucket("mybucketnavneet");
+//     console.log(headBucketResponse);
+//     return res.status(200).json({message:"Image uploaded successfully",headBucketResponse});
+//   }
+//   console.log(headBucketResponse);
+//   return res.status(200).json({message:"Image uploaded successfully",headBucketResponse});
+// }
+
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
+const fs=require('fs');
+const { TransferManager } = require("zcatalyst-sdk-node/lib/stratus");
+
+exports.fileUpload=async(req,res,next)=>{
+  // console.log("file test");
+  var dbApp = catalyst.initialize(req);
+    let zcql = dbApp.zcql();
+    let stratus = dbApp.stratus();
+    let bucket = stratus.bucket("mybucketnavneet");
+    let transferManager = new TransferManager(bucket);
+    let body = req.body;
+    let img = req.file.path;
+    // console.log(req.file);
+    // console.log(img);
+    return res.status(200).json({message:"file info",img});
+    if(!img){
+      return res.status(400).json({message:"File is not attached"});
+    }
+    let img_stream = fs.createReadStream(img);
+    let partSize = 50;
+    let rand = Math.random() * 1000;
+    let name = "File" + rand + ".pdf";
+    let objectUpload = await transferManager.putObjectAsParts(
+      name,
+      img_stream,
+      partSize
+    );
+    // console.log(objectUpload);
+    return res.status(200).json({message:"File uploaded successfully", objectUpload});
+}

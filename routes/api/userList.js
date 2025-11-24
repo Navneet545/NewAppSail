@@ -11,5 +11,7 @@ router.post('/verifyOTPOLD',userList.verifyOTPOLD);
 router.patch('/updatePasswordOLD',userList.updatePasswordOLD);
 // @new generate otp,verifyotp, update password
 router.post('/generateOTP',userList.generateOTP);
+router.post('/verifyOTP',userList.verifyOTP);
+router.patch('/updatePassword',userList.updatePassword);
 router.post('/logout',userList.logout);
 module.exports=router;

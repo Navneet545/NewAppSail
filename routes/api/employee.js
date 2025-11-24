@@ -1,9 +1,14 @@
 const express=require('express');
 const router=express.Router();
 var catalyst = require('zcatalyst-sdk-node');
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 // var employeeController=require('./controller/employee');
 var employeeController=require('../../controllers/employee');
 const verifyToken=require('../../Middleware/authMiddleware');
+
+//@GET send mail
+router.get('/sendMail',employeeController.SendMail);
 
 // @GET Request
 router.get('/',verifyToken.verifyToken, verifyToken.authorizeRoles('Admin','User'),employeeController.getAllEmployee);
@@ -29,7 +34,8 @@ router.patch('/:id', employeeController.patchSingleEmployee);
 // @Delete Request an Employee ID
 router.delete('/:id',employeeController.deleteSingleEmployee);
 
-//@POST Request Image
-// router.post('/image',employeeController.UploadImage);
+//@POST Request fileUpload
+router.post('/fileUpload',upload.single("doc"),employeeController.fileUpload);
+
 
 module.exports=router;
